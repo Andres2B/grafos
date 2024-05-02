@@ -1,0 +1,141 @@
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <algorithm>
+
+using namespace std;
+
+class Grafo {
+private:
+    vector<unordered_set<int>> listaAdyacencia; // Lista de adyacencia para almacenar los nodos adyacentes
+    vector<int> nodos; // Nodos ingresados por el usuario
+
+public:
+    // Constructor
+    Grafo() {}
+
+    // Método para agregar una arista entre dos nodos
+    void agregarArista(int u, int v) {
+        // Agregar v a la lista de adyacencia de u y viceversa
+        listaAdyacencia[u].insert(v);
+        listaAdyacencia[v].insert(u);
+    }
+
+    // Método para imprimir el grafo
+    void imprimirGrafo() {
+        for (int i = 0; i < listaAdyacencia.size(); ++i) {
+            cout << "Nodo " << nodos[i] << " está conectado con:\n";
+            for (int vecino : listaAdyacencia[i]) {
+                cout << "  |--> " << nodos[vecino] << endl;
+            }
+            cout << endl;
+        }
+    }
+
+    // Método para crear conexiones entre nodos ingresados por el usuario
+    void crearConexiones() {
+        listaAdyacencia.resize(nodos.size());
+
+        for (int i = 0; i < nodos.size(); ++i) {
+            for (int j = i + 1; j < nodos.size(); ++j) {
+                agregarArista(i, j);
+            }
+        }
+    }
+
+    // Método para establecer los nodos ingresados por el usuario
+    void establecerNodos(const vector<int>& nodosUsuario) {
+        nodos = nodosUsuario;
+        sort(nodos.begin(), nodos.end()); // Ordenar los nodos de menor a mayor
+    }
+
+    // Método para obtener la matriz de adyacencia
+    vector<vector<int>> matrizAdyacencia() {
+        int n = nodos.size();
+        vector<vector<int>> matriz(n, vector<int>(n, 0));
+
+        for (int i = 0; i < n; ++i) {
+            for (int j : listaAdyacencia[i]) {
+                matriz[distance(nodos.begin(), find(nodos.begin(), nodos.end(), nodos[i]))]
+                      [distance(nodos.begin(), find(nodos.begin(), nodos.end(), nodos[j]))] = 1;
+                matriz[distance(nodos.begin(), find(nodos.begin(), nodos.end(), nodos[j]))]
+                      [distance(nodos.begin(), find(nodos.begin(), nodos.end(), nodos[i]))] = 1;
+            }
+        }
+
+        return matriz;
+    }
+
+    // Método para imprimir la matriz de adyacencia
+    void imprimirMatrizAdyacencia() {
+        vector<vector<int>> matriz = matrizAdyacencia();
+
+        cout << "Matriz de adyacencia del grafo:\n";
+        cout << "    ";
+        for (int nodo : nodos) {
+            cout << nodo << "  ";
+        }
+        cout << endl;
+
+        for (int i = 0; i < matriz.size(); ++i) {
+            cout << nodos[i] << "   ";
+            for (int j = 0; j < matriz[i].size(); ++j) {
+                cout << matriz[i][j] << "   ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    Grafo grafo;
+    int eleccion;
+
+    while (true) {
+        cout << "\nMenú:\n";
+        cout << "1. Ingresar nodos\n";
+        cout << "2. Mostrar grafo\n";
+        cout << "3. Mostrar matriz de adyacencia\n";
+        cout << "4. Salir\n";
+        cout << "Ingrese su elección: ";
+        cin >> eleccion;
+
+        switch (eleccion) {
+            case 1: {
+                int numNodos;
+                cout << "Ingrese el número de nodos en el grafo: ";
+                cin >> numNodos;
+
+                vector<int> nodos(numNodos);
+                cout << "Ingrese los nodos del grafo (pueden ser positivos o negativos): ";
+                for (int i = 0; i < numNodos; ++i) {
+                    cin >> nodos[i];
+                }
+
+                // Establecer los nodos ingresados por el usuario
+                grafo.establecerNodos(nodos);
+                // Crear conexiones entre nodos ingresados por el usuario
+                grafo.crearConexiones();
+                cout << "Nodos ingresados exitosamente.\n";
+                break;
+            }
+            case 2: {
+                cout << "\nEl grafo generado es:\n";
+                grafo.imprimirGrafo();
+                break;
+            }
+            case 3: {
+                cout << "\n";
+                grafo.imprimirMatrizAdyacencia();
+                break;
+            }
+            case 4:
+                cout << "Saliendo del programa...\n";
+                return 0;
+            default:
+                cout << "Opción inválida. Inténtelo de nuevo.\n";
+        }
+    }
+
+    return 0;
+}
